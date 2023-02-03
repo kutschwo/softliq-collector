@@ -66,43 +66,7 @@ If you request more often the webserver of the device will hung.
 $ sudo nano /usr/local/etc/sofliq-collector.json
 ```
 
-Check if the collector is working (stop with Ctrl+C)
-```shell
-$ sofliq-collector -c sofliq-collector.json
-  System time:13:19, Sensor1 temp:20.7C, Sensor2 temp:21.0C, Sensor3 temp:22.9C, Sensor4 temp:24.0C, Pump speed1:0%, Pump speed2:0%, Hours1:2302, Hours2:2425
-  System time:13:19, Sensor1 temp:20.7C, Sensor2 temp:21.0C, Sensor3 temp:22.9C, Sensor4 temp:24.0C, Pump speed1:0%, Pump speed2:0%, Hours1:2302, Hours2:2425
-  System time:13:19, Sensor1 temp:20.7C, Sensor2 temp:21.0C, Sensor3 temp:22.9C, Sensor4 temp:24.0C, Pump speed1:0%, Pump speed2:0%, Hours1:2302, Hours2:2425
-```
 
-Start the monitor-vbus service, remove the "--mqtt" parameter form the service file if no mqtt server is a available at localhost:1883
-```shell
-$ systemctl start monitor-vbus
-```
-
-Check wether the service is running properly
-```shell
-$ systemctl status monitor-vbus
-  ● monitor-vbus.service - Monitor resol vbus temperatures
-     Loaded: loaded (/srv/vbus/collector/monitor-vbus.service; linked; vendor preset: disabled)
-     Active: active (running) since Mi 2015-09-02 13:29:23 CEST; 10min ago
-   Main PID: 12422 (vbus-collector)
-     CGroup: /system.slice/monitor-vbus.service
-             └─12422 /srv/vbus/collector/vbus-collector --no-print --delay 60 --db /srv/vbus/collector/data.db /dev/tty_resol
-```
-
-Check that data is being written to the sqlite database
-```shell
-$ sqlite3 /srv/vbus/collector/data.db "SELECT * FROM data ORDER BY id DESC LIMIT 4;"
-  174837|2015-09-02 11:28:10|10:24|18.8|20.9|22.6|22.9|0|0|2302|2425
-  174836|2015-09-02 11:29:07|10:22|18.9|20.9|22.7|22.9|0|0|2302|2425
-  174835|2015-09-02 11:30:05|10:21|18.8|20.9|22.6|22.9|0|0|2302|2425
-  174834|2015-09-02 11:31:03|10:20|18.9|20.9|22.6|22.9|0|0|2302|2425
-```
-> Date/Time values in the sqlite database are stored in UTC.
-> To get the correct local time ensure that the timezone on the system is set properly and use:
-> ```shell
-> $ sqlite3 /srv/vbus/collector/data.db "SELECT datetime(time, 'localtime'),* FROM data;"
-> ```
 
 ## Options file
 
@@ -111,29 +75,35 @@ $ sqlite3 /srv/vbus/collector/data.db "SELECT * FROM data ORDER BY id DESC LIMIT
 For production the following file could be used.
 ```json
 {
-    "device": "/dev/serial/by-id/usb-1fef_2018-if00",
-    "interval": 60,
+    "testmode" : true,
+    "softlic_url": "http://192.168.0.1/mux_http/",
+    "post_string" : "id=62&show=D_A_1_1|D_A_1_2|D_A_2_2|D_A_3_1|D_A_3_2|D_Y_1|D_A_1_3|D_A_2_3|D_Y_5|D_B_1|D_Y_4_1|D_Y_4_2|D_Y_4_3|D_Y_4_4|D_Y_4_5|D_Y_4_6|D_Y_4_7|D_Y_4_8|D_Y_4_9|D_Y_4_10|D_Y_2_1|D_Y_2_2|D_Y_2_3|D_Y_2_4|D_Y_2_5|D_Y_2_6|D_Y_2_7|D_Y_2_8|D_Y_2_9|D_Y_2_10~",
+    "loopforever": false,
+    "delay": 60,
     "verbose": false,
-    "database": "/srv/vbus/collector/data.db",
-    "print_stdout": false,
+    "withSql": true,
+    "database": "./softliq.db",
+    "print_result": true,
+    "print_stdout": true,
     "mqtt": {
-        "enabled": false,
-        "base_topic": "heizung",
-        "server": "tcp://localhost:1883",
-        "client_id": "vbus",
-        "user": null,
-        "password": null
+        "enabled": true,
+        "base_topic": "haus/softliq/sensor",
+        "server": "tcp://server.dom:1883",
+        "client_id": "client",
+        "user": "user1234",
+        "password": "pw12345"
     },
     "homeassistant": {
         "enabled": false,
-        "entity_id_base": "sensor.heating"
+        "entity_id_base": "sensor.softliq"
     }
 }
+
 ```
 
 Usage:
 ```shell
-$ vbus-collector --config options.json
+$ sofliq-collector -c sofliq-collector.json
 ```
 
 ## Homeassistant integration
