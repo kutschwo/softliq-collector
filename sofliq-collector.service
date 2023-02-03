@@ -1,0 +1,8 @@
+[Unit]
+Description=Gruenbeck decalcination device monitor
+
+[Service]
+Nice=1
+ExecStart=/usr/local/bin/sofliq-collector --config /usr/local/etc/sofliq-collector.json
+User=root
+Group=root
