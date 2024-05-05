@@ -1,6 +1,8 @@
-############
-# Makefile #
-############
+################################################################
+# Makefile                                                     #
+# softlic-collector                                            #
+# überträgt Daten von einer Grünbeck SC23 an einen MQTT Server #
+################################################################
 
 # C source files
 SOURCES = getcurldata.c printsoftliq.c kbhit.c sqlite.c mqtt.c config.c homeassistant.c main.c
@@ -63,6 +65,5 @@ install:
 	cp ./$(TARGET) $(INST_DIR)/bin/$(TARGET)
 	cp ./$(TARGET).json $(INST_DIR)/etc/$(TARGET).json
 	cp ./$(TARGET).service  $(INST_DIR)/bin/$(TARGET).service
-	ln -s $(INST_DIR)/bin/$(TARGET).service /etc/systemd/system/
-#       systemctl start monitor-vbus
+
 

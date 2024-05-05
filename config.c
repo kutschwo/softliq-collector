@@ -4,7 +4,7 @@
 // Tobias Tangemann 2020
 // Wolfgang Kutscherauer 2023
 // Anpassung an Grünbeck Entkalkungs-Anlage
-// Alle Optionen nur noch in der -jason Datei
+// Alle Optionen nur noch in der -json Datei
 // Funktionen zum Auslesen von Konfigurations-Werten aus .json Datei
 // Implementation
 //
@@ -21,8 +21,6 @@
 #include "config.h"
 
 #define _SVID_SOURCE
-
-
 
 int getParameter(cJSON* json, CONFIG* cfg);
 int getMqttParameter(const cJSON* mqtt, CONFIG* cfg);
